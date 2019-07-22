@@ -37,14 +37,16 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     CaptureManager.shared.statSession()
   
     
-    timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true, block: { (_) in
-      if let content = FileManager.default.contents(atPath: self.url().path) {
-        if self.session.isReachable && self.session.isWatchAppInstalled && self.session.isPaired {
-          self.session.sendMessageData(content, replyHandler: nil, errorHandler: nil)
-          self.doTheLoop()
-        }
-      }
-    })
+//    timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true, block: { (_) in
+//      if let content = FileManager.default.contents(atPath: self.url().path) {
+//        if self.session.isReachable && self.session.isWatchAppInstalled && self.session.isPaired {
+//          self.session.sendMessageData(content, replyHandler: nil, errorHandler: nil)
+//          self.doTheLoop()
+//        }
+//      }
+//    })
+    
+    session.sendMessage(["url": url()], replyHandler: nil, errorHandler: nil)
     
     NotificationCenter.default.addObserver(forName: NSNotification.Name("NeedImage"), object: nil, queue: .main) { (notification) in
       DispatchQueue.main.async {
@@ -57,7 +59,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     }
     setUpRecorder()
     doTheLoop()
-    timer.fire()
+//    timer.fire()
   }
   
   func doTheLoop() {

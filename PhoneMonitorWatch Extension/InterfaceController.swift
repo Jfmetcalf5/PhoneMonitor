@@ -18,6 +18,8 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   
   var session: WCSession!
   
+  var isPresentingAlert: Bool = false
+  
   var player = AVAudioPlayer()
   let audioSession = AVAudioSession.sharedInstance()
   
@@ -32,14 +34,18 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     }
     
     let timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (_) in
-      if self.session.isReachable && UserDefaults.standard.bool(forKey: "OkayTapped") {
-        self.session.sendMessage([:], replyHandler: nil, errorHandler: nil)
-      } else if UserDefaults.standard.bool(forKey: "OkayTapped") {
-        print("Do Nothing.. they know whats up")
-      } else {
-        self.presentAlert(withTitle: "Unlock your phone", message: "To have the app work please unlock you phoen and open the app", preferredStyle: .actionSheet, actions: [WKAlertAction(title: "Okay", style: .default, handler: {
-          UserDefaults.standard.set(true, forKey: "OkayTapped")
-        })])
+      if self.isPresentingAlert == false {
+        if self.session.isReachable && UserDefaults.standard.bool(forKey: "OkayTapped") {
+          self.session.sendMessage([:], replyHandler: nil, errorHandler: nil)
+        } else if UserDefaults.standard.bool(forKey: "OkayTapped") {
+          print("Do Nothing.. they know whats up")
+        } else if UserDefaults.standard.bool(forKey: "OkayTapped") == false {
+          self.isPresentingAlert = true
+          self.presentAlert(withTitle: "Unlock your phone", message: "To have the app work please unlock you phoen and open the app", preferredStyle: .actionSheet, actions: [WKAlertAction(title: "Okay", style: .default, handler: {
+            UserDefaults.standard.set(true, forKey: "OkayTapped")
+            self.isPresentingAlert = false
+          })])
+        }
       }
     }
     
@@ -102,6 +108,14 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     NotificationCenter.default.post(name: Notification.Name("image"), object: nil, userInfo: ["image":image])
     } else if let soundData = try? AVAudioPlayer(data: messageData) {
       NotificationCenter.default.post(name: NSNotification.Name("sound"), object: nil, userInfo: ["sound": soundData])
+    }
+  }
+  
+  func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
+    if let url = message["url"] as? URL {
+      let content = FileManager.default.contents(atPath: url.absoluteString)
+      let player = try? AVAudioPlayer(contentsOf: url)
+      player?.play()
     }
   }
   
