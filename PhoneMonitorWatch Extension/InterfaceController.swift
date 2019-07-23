@@ -73,20 +73,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
           
         } catch let error {
           print(error.localizedDescription)
-//          fatalError("*** Unable to set up the audio session: \(error.localizedDescription) ***")
         }
-//        if let path = Bundle.main.url(forResource: "piano", withExtension: "mp3") {
-//          let fileUrl = path
-//          do{
-//            player = try AVAudioPlayer(contentsOf: fileUrl)
-//          }
-//          catch
-//          {
-//            print("*** Unable to set up the audio player: \(error.localizedDescription) ***")
-//            // Handle the error here.
-//            return
-//          }
-//        }
         if !player.isPlaying {
           player.play()
         }
